@@ -1,11 +1,9 @@
 package example.hemant.ini;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import example.hemant.dto.CustomerDto;
-import example.hemant.entity.Address;
 import example.hemant.entity.Customer;
+import example.hemant.mock.MockData;
 import example.hemant.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +20,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
 
+import static example.hemant.mock.MockData.fromJson;
+import static example.hemant.mock.MockData.getAddress;
+
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -35,16 +36,7 @@ public class IntegrationTest {
 
     @BeforeEach
     public void setup() {
-        Address address = Address.builder()
-                .city("Pune")
-                .zip("12334")
-                .street("Pune")
-                .state("Maharashtra")
-                .build();
-        Customer customer = Customer.builder()
-                .firstName("sonu").LastName("sahu")
-                .address(address)
-                .build();
+        Customer customer = MockData.getCustomer(getAddress());
         Customer saveCustomer = customerRepository.save(customer);
         System.out.println(saveCustomer);
     }
@@ -54,7 +46,7 @@ public class IntegrationTest {
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get("/api/v1/customers");
         MvcResult mvcResult = mockMvc.perform(builder).andReturn();
         String asString = mvcResult.getResponse().getContentAsString();
-        List<CustomerDto> customerDtos = fromJson(asString, new TypeReference<List<CustomerDto>>() {
+        List<CustomerDto> customerDtos = fromJson(asString, new TypeReference<>() {
         });
         System.out.println(customerDtos);
     }
@@ -68,13 +60,5 @@ public class IntegrationTest {
         System.out.println(customerDto);
     }
 
-    private static <T> T fromJson(String json, Class<T> classz) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, classz);
-    }
 
-    private static <T> T fromJson(String json, TypeReference<T> TypeReference) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, TypeReference);
-    }
 }

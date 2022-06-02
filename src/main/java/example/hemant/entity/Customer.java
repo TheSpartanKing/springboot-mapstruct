@@ -16,7 +16,7 @@ public class Customer {
     @GeneratedValue
     private Long id;
     private String firstName;
-    private String LastName;
+    private String lastName;
     @OneToOne(cascade = CascadeType.ALL)
     private Address address;
 }
